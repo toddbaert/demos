@@ -105,39 +105,33 @@ under the License.
       <critical-analyzer-policy>HALT</critical-analyzer-policy>
 
       <acceptors>
-
-         <!-- useEpoll means: it will use Netty epoll if you are on a system (Linux) that supports it -->
-         <!-- amqpCredits: The number of credits sent to AMQP producers -->
-         <!-- amqpLowCredits: The server will send the # credits specified at amqpCredits at this low mark -->
-
-         <!-- Acceptor for every supported protocol -->
          <acceptor name="artemis">tcp://0.0.0.0:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=OPENWIRE,CORE;useEpoll=true</acceptor>
       </acceptors>
 
-		<!-- TODD: define the connectors so the nodes can communicate -->
-		<connectors>
-			<connector name="node1-connector">tcp://localhost:61616</connector>
-			<connector name="node2-connector">tcp://localhost:61617</connector>
-		</connectors>
+      <!-- TODD: define the connectors so the nodes can communicate -->
+      <connectors>
+        <connector name="node1-connector">tcp://localhost:61616</connector>
+        <connector name="node2-connector">tcp://localhost:61617</connector>
+      </connectors>
 
-		<!-- TODD: credentials for the cluster -->
-		<cluster-user>admin</cluster-user>
-		<cluster-password>password</cluster-password>
+      <!-- TODD: credentials for the cluster -->
+      <cluster-user>admin</cluster-user>
+      <cluster-password>password</cluster-password>
 
-		<cluster-connections>
-			<cluster-connection name="static-cluster">
-				<!-- TODD: address to apply this cluster to. Do not invlude if you want all topics clustered -->
-				<!-- <address>camael</address> -->
-				<connector-ref>node1-connector</connector-ref>
-				<!-- TODD: how to balance the load STRICK is round-robin. ON_DEMAND forwards to active consumers
-				and may therefor perform better. STRICK is good for demoing and testing -->
-				<message-load-balancing>STRICT</message-load-balancing>
-				<!-- TODD: define other brokers to connect to -->
-				<static-connectors>
-					<connector-ref>node2-connector</connector-ref>
-				</static-connectors>
-			</cluster-connection>
-		</cluster-connections>
+      <cluster-connections>
+        <cluster-connection name="static-cluster">
+          <!-- TODD: address to apply this cluster to. Do not invlude if you want all topics clustered -->
+          <!-- <address>camael</address> -->
+          <connector-ref>node1-connector</connector-ref>
+          <!-- TODD: how to balance the load STRICK is round-robin. ON_DEMAND forwards to active consumers
+          and may therefor perform better. STRICK is good for demoing and testing -->
+          <message-load-balancing>STRICT</message-load-balancing>
+          <!-- TODD: define other brokers to connect to -->
+          <static-connectors>
+            <connector-ref>node2-connector</connector-ref>
+          </static-connectors>
+        </cluster-connection>
+      </cluster-connections>
 
       <security-settings>
          <security-setting match="#">
@@ -172,6 +166,7 @@ under the License.
          </address-setting>
          <!--default for catch all-->
          <address-setting match="#">
+            <redistribution-delay>0</redistribution-delay>
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
