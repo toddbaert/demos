@@ -10,23 +10,39 @@ namespace amqp_client_demo
     {
         static void Main(string[] args)
         {
-            string url = (args.Length > 0) ? args[0] : "amqp://guest:guest@127.0.0.1:5672";
+            string url = (args.Length > 0) ? args[0] : "amqp://localhost:5672";
             int count = (args.Length > 2) ? Convert.ToInt32(args[2]) : 10;
 
             Address peerAddr = new Address(url);                 
             Connection connection = new Connection(peerAddr);                   
             Session session = new Session(connection);
-                        
-            SenderLink send1 = new SenderLink(session, "sender1", "orders.s123");
-            SenderLink send2 = new SenderLink(session, "sender2", "orders.s456");
-            
-            ReceiverLink biReceiver = new ReceiverLink(session, "BI", "orders.#");
-            ReceiverLink otherReceiver = new ReceiverLink(session, "other-service", "orders.*");
-            ReceiverLink store123Receiver = new ReceiverLink(session, "s123", "orders.s123");
-            ReceiverLink store456Receiver = new ReceiverLink(session, "s456", "orders.s456");
 
-            send1.Send(new Message("order placed for store 123"));                                               
-            send2.Send(new Message("order placed for store 456"));                                               
+            Map filters = new Map();
+            filters.Add(new Symbol("store123"), new DescribedValue(new Symbol("apache.org:selector-filter:string"), "store = 123"));
+            Source ordersSource123 = new Source(){ Address = "orders", FilterSet = filters };
+            ordersSource123.DistributionMode = new Symbol("move");
+            
+            filters = new Map();
+            filters.Add(new Symbol("store456"), new DescribedValue(new Symbol("apache.org:selector-filter:string"), "store = 456"));
+            Source ordersSource456 = new Source(){ Address = "orders", FilterSet = filters };
+            ordersSource456.DistributionMode = new Symbol("move");
+
+                        
+            SenderLink sender = new SenderLink(session, "sender", "orders");
+            
+            ReceiverLink biReceiver = new ReceiverLink(session, "BI", "orders");
+            ReceiverLink otherReceiver = new ReceiverLink(session, "other-service", "orders");
+            ReceiverLink store123Receiver = new ReceiverLink(session, "s123", ordersSource123, null);
+            ReceiverLink store456Receiver = new ReceiverLink(session, "s456", ordersSource456, null);
+
+            Message message = new Message("order placed for store 123");
+            message.ApplicationProperties = new ApplicationProperties();
+            message.ApplicationProperties["store"] = 123;
+            sender.Send(message);   
+            message = new Message("order placed for store 456");
+            message.ApplicationProperties = new ApplicationProperties();
+            message.ApplicationProperties["store"] = 456;
+            sender.Send(message);                                               
         
             LogReceivedMessage(biReceiver);
             LogReceivedMessage(otherReceiver);
@@ -35,8 +51,7 @@ namespace amqp_client_demo
             LogReceivedMessage(store123Receiver);
             LogReceivedMessage(store456Receiver);       
                     
-            send1.Close();    
-            send2.Close();    
+            sender.Close();    
             store123Receiver.Close();         
             store456Receiver.Close();                                       
             biReceiver.Close();                                                
@@ -59,7 +74,7 @@ namespace amqp_client_demo
 
                 // Terminus Durability 0,1,2 (none, configuration, unsettled-state)
                 source.Durable = 2;
-                source.DistributionMode = new Symbol("copy");
+                source.DistributionMode = new Symbol("move");
                 return source;
         }
     }
