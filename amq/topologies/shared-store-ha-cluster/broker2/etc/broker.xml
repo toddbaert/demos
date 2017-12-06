@@ -33,13 +33,13 @@ under the License.
        -->
       <journal-type>ASYNCIO</journal-type>
 
-      <paging-directory>/home/todd/dominos/brokers/shared/2-4/data/paging</paging-directory>
+      <paging-directory>../shared/2-4/data/paging</paging-directory>
 
-      <bindings-directory>/home/todd/dominos/brokers/shared/2-4/data/bindings</bindings-directory>
+      <bindings-directory>../shared/2-4/data/bindings</bindings-directory>
 
-      <journal-directory>/home/todd/dominos/brokers/shared/2-4/data/journal</journal-directory>
+      <journal-directory>../shared/2-4/data/journal</journal-directory>
 
-      <large-messages-directory>/home/todd/dominos/brokers/shared/2-4/data/large-messages</large-messages-directory>
+      <large-messages-directory>../shared/2-4/data/large-messages</large-messages-directory>
 
       <journal-datasync>true</journal-datasync>
 
