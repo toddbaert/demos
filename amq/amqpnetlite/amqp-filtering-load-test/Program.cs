@@ -148,8 +148,8 @@ namespace Amqp.Testing
             // maximum terminus durability 0,1,2 (none, configuration, unsettled-state)
             source.Durable = 2;
 
-            // request capabilities "topic" (multicast in AMQ7 language), and "shared"
-            source.Capabilities = new Symbol[]{"topic",  "global"};
+            // request capabilities "topic" (multicast in AMQ7 language), "global" and "shared"
+            source.Capabilities = new Symbol[]{"topic", "shared", "global"};
             source.DistributionMode = new Symbol("copy");
             Map filterMap = new Map();
 
